@@ -9,7 +9,7 @@
 <img src="assets/teaser.png"> -->
 
 ## TODO List
-- [] Training Code
+- [ ] Training Code
 - [x] Inference code for VideoFlow (2023-7-26)
 
 ## Requirements
