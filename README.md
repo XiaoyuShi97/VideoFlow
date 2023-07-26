@@ -7,11 +7,9 @@
 
 
 
-https://github.com/XiaoyuShi97/VideoFlow/assets/25840016/f5db6554-83e9-4e09-914a-c2a3e2ab3804
+https://github.com/XiaoyuShi97/VideoFlow/assets/25840016/fc29257b-d688-412a-86e6-b4dddb95f96a
 
 
-<!-- 
-<img src="assets/teaser.png"> -->
 
 ## TODO List
 - [ ] Training Code
