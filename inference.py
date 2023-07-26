@@ -46,12 +46,12 @@ def vis_pre(flow_pre, vis_dir):
     for idx in range(N//2):
         flow_img = flow_viz.flow_to_image(flow_pre[idx].permute(1, 2, 0).numpy())
         image = Image.fromarray(flow_img)
-        image.save('{}/flow_{:04}_to_{:04}.png'.format(vis_dir, idx+1, idx+2))
+        image.save('{}/flow_{:04}_to_{:04}.png'.format(vis_dir, idx+2, idx+3))
     
     for idx in range(N//2, N):
         flow_img = flow_viz.flow_to_image(flow_pre[idx].permute(1, 2, 0).numpy())
         image = Image.fromarray(flow_img)
-        image.save('{}/flow_{:04}_to_{:04}.png'.format(vis_dir, idx-N//2+1, idx-N//2))
+        image.save('{}/flow_{:04}_to_{:04}.png'.format(vis_dir, idx-N//2+2, idx-N//2+1))
     
 
 
