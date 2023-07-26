@@ -1,0 +1,3 @@
+# ninja log v5
+14	43414	1674813234000000000	/mnt/lustre/shixiaoyu1/flow/BOFNet/alt_cuda_corr/build/temp.linux-x86_64-3.6/correlation.o	a907b39a4eb15a34
+19	120472	1674813310000000000	/mnt/lustre/shixiaoyu1/flow/BOFNet/alt_cuda_corr/build/temp.linux-x86_64-3.6/correlation_kernel.o	ee596d56bae4937b
