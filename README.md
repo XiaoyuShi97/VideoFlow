@@ -1,4 +1,4 @@
-# VideoFlow: Exploiting Temporal Cues for Multi-frame Optical Flow Estimation
+# [VideoFlow: Exploiting Temporal Cues for Multi-frame Optical Flow Estimation](https://arxiv.org/abs/2303.08340)
 <!-- ### [Project Page](https://drinkingcoder.github.io/publication/flowformer/)  -->
 
 > VideoFlow: Exploiting Temporal Cues for Multi-frame Optical Flow Estimation  
@@ -28,13 +28,18 @@ We provide pretrained [models](https://drive.google.com/drive/folders/16YqDD_IQp
 ```Shell
 ├── VideoFlow_ckpt
     ├── MOF_sintel.pth
+    ├── BOF_sintel.pth
 
 ```
 
 ## Inference & Visualization
 Download VideoFlow_ckpt and put it in the root dir. Run the following command:
 ```shell
-python -u inference.py --seq_dir demo_input_images --vis_dir demo_flow_vis
+python -u inference.py --mode MOF --seq_dir demo_input_images --vis_dir demo_flow_vis
+```
+If your input only contain three frames, we recommend to use the BOF model:
+```shell
+python -u inference.py --mode BOF --seq_dir demo_input_images_three_frames --vis_dir demo_flow_vis_three_frames
 ```
 
 <!-- ## Data Preparation
