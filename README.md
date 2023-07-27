@@ -12,7 +12,7 @@ https://github.com/XiaoyuShi97/VideoFlow/assets/25840016/8121acc6-b874-411e-86de
 ```shell
 conda create --name videoflow
 conda activate videoflow
-conda install pytorch=1.6.0 torchvision=0.7.0 cudatoolkit=10.1 matplotlib tensorboard scipy opencv -c pytorch
+conda install pytorch=1.6.0 torchvision=0.7.0 cudatoolkit=10.1 matplotlib tensorboard scipy opencv-python -c pytorch
 pip install yacs loguru einops timm==0.4.12 imageio
 ```
 
