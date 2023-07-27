@@ -5,15 +5,8 @@
 > [Xiaoyu Shi](https://xiaoyushi97.github.io/), [Zhaoyang Huang](https://drinkingcoder.github.io), [Weikang Bian](https://wkbian.github.io/), [Dasong Li](https://dasongli1.github.io/), [Manyuan Zhang](https://manyuan97.github.io/), Ka Chun Cheung, Simon See, [Hongwei Qin](http://qinhongwei.com/academic/), [Jifeng Dai](https://jifengdai.org/), [Hongsheng Li](https://www.ee.cuhk.edu.hk/~hsli/)  
 > ICCV 2023
 
-
-
 https://github.com/XiaoyuShi97/VideoFlow/assets/25840016/8121acc6-b874-411e-86de-df55f7d386a9
 
-
-
-## TODO List
-- [ ] Training Code
-- [x] Inference code for VideoFlow (2023-7-26)
 
 ## Requirements
 ```shell
@@ -29,7 +22,10 @@ We provide pretrained [models](https://drive.google.com/drive/folders/16YqDD_IQp
 ├── VideoFlow_ckpt
     ├── MOF_sintel.pth
     ├── BOF_sintel.pth
-
+    ├── MOF_things.pth
+    ├── BOF_things.pth
+    ├── MOF_kitti.pth
+    ├── BOF_kitti.pth
 ```
 
 ## Inference & Visualization
@@ -42,13 +38,13 @@ If your input only contain three frames, we recommend to use the BOF model:
 python -u inference.py --mode BOF --seq_dir demo_input_images_three_frames --vis_dir demo_flow_vis_three_frames
 ```
 
-<!-- ## Data Preparation
-Similar to RAFT, to evaluate/train FlowFormer, you will need to download the required datasets. 
+## Data Preparation
+To evaluate/train FlowFormer, you will need to download the required datasets. 
 * [FlyingChairs](https://lmb.informatik.uni-freiburg.de/resources/datasets/FlyingChairs.en.html#flyingchairs)
 * [FlyingThings3D](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html)
 * [Sintel](http://sintel.is.tue.mpg.de/)
-* [KITTI](http://www.cvlibs.net/datasets/kitti/eval_scene_flow.php?benchmark=flow)
-* [HD1K](http://hci-benchmark.iwr.uni-heidelberg.de/) (optional)
+* [KITTI](http://www.cvlibs.net/datasets/kitti/eval_scene_flow.php?benchmark=flow) (multi-view extension, 20 frames per scene, 14 GB)
+* [HD1K](http://hci-benchmark.iwr.uni-heidelberg.de/)
 
 By default `datasets.py` will search for the datasets in these locations. You can create symbolic links to wherever the datasets were downloaded in the `datasets` folder
 
@@ -69,92 +65,44 @@ By default `datasets.py` will search for the datasets in these locations. You ca
         ├── optical_flow
 ```
 
-## Requirements
-```shell
-conda create --name flowformer
-conda activate flowformer
-conda install pytorch=1.6.0 torchvision=0.7.0 cudatoolkit=10.1 matplotlib tensorboard scipy opencv -c pytorch
-pip install yacs loguru einops timm==0.4.12 imageio
-```
 
 ## Training
-The script will load the config according to the training stage. The trained model will be saved in a directory in `logs` and `checkpoints`. For example, the following script will load the config `configs/default.py`. The trained model will be saved as `logs/xxxx/final` and `checkpoints/chairs.pth`.
+The script will load the config according to the training stage. The trained model will be saved in a directory in `logs` and `checkpoints`. For example, the following script will load the config `configs/***.py`. The trained model will be saved as `logs/xxxx/final`.
 ```shell
-python -u train_FlowFormer.py --name chairs --stage chairs --validation chairs
-```
-To finish the entire training schedule, you can run:
-```shell
-./run_train.sh
-```
+# Train MOF model
+python -u train_MOFNet.py --name MOF-things --stage things --validation sintel
+python -u train_MOFNet.py --name MOF-sintel --stage sintel --validation sintel
+python -u train_MOFNet.py --name MOF-kitti --stage kitti --validation sintel
 
-## Models
-We provide [models](https://drive.google.com/drive/folders/1K2dcWxaqOLiQ3PoqRdokrgWsGIf3yBA_?usp=sharing) trained in the four stages. The default path of the models for evaluation is:
-```Shell
-├── checkpoints
-    ├── chairs.pth
-    ├── things.pth
-    ├── sintel.pth
-    ├── kitti.pth
-    ├── flowformer-small.pth 
-    ├── things_kitti.pth
+# Train BOF model
+python -u train_BOFNet.py --name BOF-things --stage things --validation sintel
+python -u train_BOFNet.py --name BOF-sintel --stage sintel --validation sintel
+python -u train_BOFNet.py --name BOF-kitti --stage kitti --validation sintel
 ```
-flowformer-small.pth is a small version of our flowformer. things_kitti.pth is the FlowFormer# introduced in our [supplementary](https://drinkingcoder.github.io/publication/flowformer/images/FlowFormer-supp.pdf), used for KITTI training set evaluation.
 
 ## Evaluation
-The model to be evaluated is assigned by the `_CN.model` in the config file.
-
-Evaluating the model on the Sintel training set and the KITTI training set. The corresponding config file is `configs/things_eval.py`.
-```Shell
-# with tiling technique
-python evaluate_FlowFormer_tile.py --eval sintel_validation
-python evaluate_FlowFormer_tile.py --eval kitti_validation --model checkpoints/things_kitti.pth
-# without tiling technique
-python evaluate_FlowFormer.py --dataset sintel
+The script will load the config `configs/multiframes_sintel_submission.py` or `configs/sintel_submission.py`. Please change the `_CN.model` in the config file to load corresponding checkpoints.
+```shell
+# Evaluate MOF_things.pth after C stage
+python -u evaluate_MOFNet.py --dataset=sintel
+python -u evaluate_MOFNet.py --dataset=things
+python -u evaluate_MOFNet.py --dataset=kitti
+# To evaluate MOF_sintel.pth, create submission to Sintel bechmark after C+S
+python -u evaluate_MOFNet.py --dataset=sintel_submission_stride1
+# To evaluate MOF_kitti.pth, create submission to Kitti bechmark after C+S+K
+python -u evaluate_MOFNet.py --dataset=kitti_submission
 ```
-||with tile|w/o tile|
-|----|-----|--------|
-|clean|0.94|1.01|
-|final|2.33|2.40|
-
-Evaluating the small version model. The corresponding config file is `configs/small_things_eval.py`.
-```Shell
-# with tiling technique
-python evaluate_FlowFormer_tile.py --eval sintel_validation --small
-# without tiling technique
-python evaluate_FlowFormer.py --dataset sintel --small
+Similarly, to evaluate BOF models:
+```shell
+# Evaluate BOF_things.pth after C stage
+python -u evaluate_BOFNet.py --dataset=sintel
+python -u evaluate_BOFNet.py --dataset=things
+python -u evaluate_BOFNet.py --dataset=kitti
+# To evaluate BOF_sintel.pth, create submission to Sintel bechmark after C+S
+python -u evaluate_BOFNet.py --dataset=sintel_submission
+# To evaluate BOF_kitti.pth, create submission to Kitti bechmark after C+S+K
+python -u evaluate_BOFNet.py --dataset=kitti_submission
 ```
-||with tile|w/o tile|
-|----|-----|--------|
-|clean|1.21|1.32|
-|final|2.61|2.68|
-
-
-Generating the submission for the Sintel and KITTI benchmarks. The corresponding config file is `configs/submission.py`.
-```Shell
-python evaluate_FlowFormer_tile.py --eval sintel_submission
-python evaluate_FlowFormer_tile.py --eval kitti_submission
-```
-Visualizing the sintel dataset:
-```Shell
-python visualize_flow.py --eval_type sintel --keep_size
-```
-Visualizing an image sequence extracted from a video:
-```Shell
-python visualize_flow.py --eval_type seq
-```
-The default image sequence format is:
-```Shell
-├── demo_data
-    ├── mihoyo
-        ├── 000001.png
-        ├── 000002.png
-        ├── 000003.png
-            .
-            .
-            .
-        ├── 001000.png
-``` -->
-
 
 ## License
 VideoFlow is released under the Apache License

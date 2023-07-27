@@ -2,17 +2,12 @@ import numpy as np
 from PIL import Image
 from os.path import *
 import re
-from io import BytesIO
+
 import cv2
 cv2.setNumThreads(0)
 cv2.ocl.setUseOpenCL(False)
 
 TAG_CHAR = np.array([202021.25], np.float32)
-
-from petrel_client.client import Client
-print("before create client")
-client = Client()
-print("after create client")
 
 def readFlow(fn):
     """ Read .flo file in Middlebury format"""
@@ -21,24 +16,22 @@ def readFlow(fn):
 
     # WARNING: this will work on little-endian architectures (eg Intel x86) only!
     # print 'fn = %s'%(fn)
-    #f = memoryview(client.get(fn))
-    f = client.get(fn)
-    magic = np.frombuffer(f, np.float32, count=1)
-    if 202021.25 != magic:
-        print('Magic number incorrect. Invalid .flo file')
-        return None
-    else:
-        w = np.frombuffer(f, np.int32, count=1, offset=4)
-        h = np.frombuffer(f, np.int32, count=1, offset=8)
-        # print 'Reading %d x %d flo file\n' % (w, h)
-        data = np.frombuffer(f, np.float32, count=2*int(w)*int(h), offset=12)
-        # Reshape data into 3D array (columns, rows, bands)
-        # The reshape here is for visualization, the original code is (w,h,2)
-        return np.resize(data, (int(h), int(w), 2))
+    with open(fn, 'rb') as f:
+        magic = np.fromfile(f, np.float32, count=1)
+        if 202021.25 != magic:
+            print('Magic number incorrect. Invalid .flo file')
+            return None
+        else:
+            w = np.fromfile(f, np.int32, count=1)
+            h = np.fromfile(f, np.int32, count=1)
+            # print 'Reading %d x %d flo file\n' % (w, h)
+            data = np.fromfile(f, np.float32, count=2*int(w)*int(h))
+            # Reshape data into 3D array (columns, rows, bands)
+            # The reshape here is for visualization, the original code is (w,h,2)
+            return np.resize(data, (int(h), int(w), 2))
 
 def readPFM(file):
-    file = client.get(file)
-    file = BytesIO(file)
+    file = open(file, 'rb')
 
     color = None
     width = None
@@ -61,14 +54,13 @@ def readPFM(file):
         raise Exception('Malformed PFM header.')
 
     scale = float(file.readline().rstrip())
-
     if scale < 0: # little-endian
         endian = '<'
         scale = -scale
     else:
         endian = '>' # big-endian
 
-    data = np.frombuffer(file.read(), endian + 'f')
+    data = np.fromfile(file, endian + 'f')
     shape = (height, width, 3) if color else (height, width)
 
     data = np.reshape(data, shape)
@@ -108,9 +100,7 @@ def writeFlow(filename,uv,v=None):
 
 
 def readFlowKITTI(filename):
-    f = client.get(filename)
-    img_array = np.frombuffer(f, np.int8)  
-    flow = cv2.imdecode(img_array, cv2.IMREAD_ANYDEPTH|cv2.IMREAD_COLOR)
+    flow = cv2.imread(filename, cv2.IMREAD_ANYDEPTH|cv2.IMREAD_COLOR)
     flow = flow[:,:,::-1].astype(np.float32)
     flow, valid = flow[:, :, :2], flow[:, :, 2]
     flow = (flow - 2**15) / 64.0
@@ -130,24 +120,15 @@ def writeFlowKITTI(filename, uv):
     cv2.imwrite(filename, uv[..., ::-1])
     
 
-def read_gen(file_name, pil=False, test=False):
-    #print(file_name)
+def read_gen(file_name, pil=False):
     ext = splitext(file_name)[-1]
     if ext == '.png' or ext == '.jpeg' or ext == '.ppm' or ext == '.jpg':
-        if test:
-            return Image.open(file_name)
-        else:
-            #print(file_name)
-            f = client.get(file_name)
-            f = BytesIO(f)        
-            return Image.open(f)
-    elif ext == '.bin' or ext == '.raw'or ext == '.npy':
-        # return np.load(file_name)
-        return np.lib.format.read_array(BytesIO(client.get(file_name)))
+        return Image.open(file_name)
+    elif ext == '.bin' or ext == '.raw':
+        return np.load(file_name)
     elif ext == '.flo':
         return readFlow(file_name).astype(np.float32)
     elif ext == '.pfm':
-        #print(file_name)
         flow = readPFM(file_name).astype(np.float32)
         if len(flow.shape) == 2:
             return flow
