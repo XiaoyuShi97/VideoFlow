@@ -510,6 +510,26 @@ class KITTISubmission_online(FlowDatasetTest):
         print(self.image_list[:10])
         print(self.extra_info_list[:10])
 
+class KITTICenter(FlowDataset):
+    def __init__(self, aug_params=None, input_frames=5):
+        super(KITTICenter, self).__init__(aug_params=aug_params, input_frames=input_frames, oneside=True, sparse=True, kitti=True)
+
+        root = 'datasets/KITTI/'
+
+        self.image_list = []
+        self.flow_list = []
+        self.has_gt_list = []
+
+        for idx_list in range(200):
+            for idx_image in [(input_frames-1)//2]:
+                self.image_list.append([(root+"KITTI-full/training/image_2/000{:03}_{:02}.png".format(idx_list, i-idx_image+10)) for i in range(input_frames)])
+                self.flow_list.append([root+"KITTI/training/flow_occ/000{:03}_10.png".format(idx_list)]*2*(input_frames-2))
+                self.has_gt_list.append([False]*(idx_image-1)+[True]+[False]*((input_frames-2)*2-idx_image))
+        
+        print(self.image_list[:10])
+        print(self.flow_list[:10])
+        print(self.has_gt_list[:10])
+
 def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
    
     if args.stage == 'things':
@@ -528,6 +548,10 @@ def fetch_dataloader(args, TRAIN_DS='C+T+K+S+H'):
         print("[dataset len: ]", len(things), len(sintel_clean), len(hd1k), len(kitti))
 
         train_dataset = 100*sintel_clean + 100*sintel_final + 50*kitti + 5*hd1k + things
+    
+    elif args.stage == 'kitti':
+        aug_params = {'crop_size': args.image_size, 'min_scale': -0.2, 'max_scale': 0.4, 'do_flip': False}
+        train_dataset = KITTICenter(aug_params, input_frames=args.input_frames)
 
     train_loader = data.DataLoader(train_dataset, batch_size=args.batch_size, 
         pin_memory=False, shuffle=True, num_workers=args.batch_size*2, drop_last=True)
