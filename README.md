@@ -39,7 +39,7 @@ python -u inference.py --mode BOF --seq_dir demo_input_images_three_frames --vis
 ```
 
 ## Data Preparation
-To evaluate/train FlowFormer, you will need to download the required datasets. 
+To evaluate/train VideoFlow, you will need to download the required datasets. 
 * [FlyingChairs](https://lmb.informatik.uni-freiburg.de/resources/datasets/FlyingChairs.en.html#flyingchairs)
 * [FlyingThings3D](https://lmb.informatik.uni-freiburg.de/resources/datasets/SceneFlowDatasets.en.html)
 * [Sintel](http://sintel.is.tue.mpg.de/)
