@@ -19,6 +19,7 @@ _CN.restore_ckpt = "PATH-TO-FINAL/final"
 
 _CN.mixed_precision = False
 _CN.input_frames = 5
+_CN.filter_epe = False
 
 ###################################################
 ###################################################
