@@ -52,7 +52,7 @@ def validate_sintel(model, cfg):
             
             flow_pre = padder.unpad(flow_pre[0]).cpu()
 
-            flow_pre = flow_pre[flow_pre.shape[0]//2:, ...][:flows.shape[0], ...]
+            flow_pre = flow_pre[:flow_pre.shape[0]//2, ...][-flows.shape[0]:, ...]
 
             epe = torch.sum((flow_pre - flows)**2, dim=1).sqrt()
             epe_list.append(epe.view(-1).numpy())
@@ -114,7 +114,7 @@ def validate_things(model, cfg):
             
             flow_pre = padder.unpad(flow_pre[0]).cpu()
 
-            flow_pre = flow_pre[flow_pre.shape[0]//2:, ...][:flows.shape[0], ...]
+            flow_pre = flow_pre[:flow_pre.shape[0]//2, ...][-flows.shape[0]:, ...]
 
             epe = torch.sum((flow_pre - flows)**2, dim=1).sqrt()
             valid = torch.sum(flows**2, dim=1).sqrt() < 400
