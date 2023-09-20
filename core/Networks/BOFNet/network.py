@@ -95,10 +95,7 @@ class BOFNet(nn.Module):
         fmap2 = fmaps[:, 1, ...]
         fmap3 = fmaps[:, 2, ...]
         
-        if self.cfg.corr_fn == "online":
-            corr_fn_21 = OLCorrBlock(fmap2, fmap1, radius=self.cfg.corr_radius)
-            corr_fn_23 = OLCorrBlock(fmap2, fmap3, radius=self.cfg.corr_radius)
-        elif self.cfg.corr_fn == "alt_cuda_corr":
+        if self.cfg.corr_fn == "efficient":
             corr_fn_21 = AlternateCorrBlock(fmap2, fmap1, radius=self.cfg.corr_radius)
             corr_fn_23 = AlternateCorrBlock(fmap2, fmap3, radius=self.cfg.corr_radius)
         else:

@@ -104,6 +104,13 @@ python -u evaluate_BOFNet.py --dataset=sintel_submission
 python -u evaluate_BOFNet.py --dataset=kitti_submission
 ```
 
+## (Optional & Inference Only) Efficent Implementation
+You can optionally use RAFT alternate (efficent) implementation by compiling the provided cuda extension and change the [`corr_fn`](https://github.com/XiaoyuShi97/VideoFlow/blob/main/configs/multiframes_sintel_submission.py#L32) flag to be `efficient` in config files.
+```Shell
+cd alt_cuda_corr && python setup.py install && cd ..
+```
+Note that his implementation is somewhat slower than all-pairs, but uses significantly less GPU memory during the forward pass. And it does not implement backward function, so do not use it in training.
+
 ## License
 VideoFlow is released under the Apache License
 
