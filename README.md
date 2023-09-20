@@ -109,7 +109,7 @@ You can optionally use RAFT alternate (efficent) implementation by compiling the
 ```Shell
 cd alt_cuda_corr && python setup.py install && cd ..
 ```
-Note that his implementation is somewhat slower than all-pairs, but uses significantly less GPU memory during the forward pass. And it does not implement backward function, so do not use it in training.
+Note that this implementation is somewhat slower than all-pairs, but uses significantly less GPU memory during the forward pass. And it does not implement backward function, so do not use it in training.
 
 ## License
 VideoFlow is released under the Apache License
